@@ -1,12 +1,11 @@
 import { Stack } from "expo-router";
-import HomeScreen from "@/screens/HomeScreen";
+import SummaryScreen from "@/screens/SummaryScreen";
 
-export default function Index() {
+export default function SummaryPage() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <HomeScreen />
+      <SummaryScreen />
     </>
   );
 }
-
