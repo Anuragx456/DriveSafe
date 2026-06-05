@@ -115,3 +115,5 @@ The application features a dark, neon-themed user interface:
 * **Session Summary Screen**: Safety score review, rating grade, duration, and detailed violation breakdown.
 
 ![DriveSafe Screens](./assets/images/DriveSafe_Final.png)
+
+Demo Link - https://drive.google.com/file/d/1ZZdqfKg-yLtVBcpOuQWT4KgKg8D68MBR/view?usp=sharing
