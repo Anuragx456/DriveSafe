@@ -168,6 +168,12 @@ export default function ActiveDriveScreen() {
     return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
   };
 
+  const getDirectionInitials = (heading: number): string => {
+    const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+    const index = Math.floor(((heading + 22.5) % 360) / 45);
+    return directions[index];
+  };
+
   const handleEndDrive = async () => {
     Alert.alert(
       "End Drive",
@@ -264,13 +270,54 @@ export default function ActiveDriveScreen() {
             style={{
               flexDirection: "row",
               alignItems: "center",
-              ...darkCardStyle({ paddingHorizontal: 8, paddingVertical: 4, borderRadius: Radii.sm, gap: 4 }),
+              justifyContent: "center",
+              gap: 12,
+              marginTop: 6,
+              ...darkCardStyle({
+                paddingHorizontal: 16,
+                paddingVertical: 10,
+                borderRadius: Radii.md,
+                borderColor: `${Colors.primary}30`,
+                borderWidth: 1,
+              }),
             }}
           >
-            <SymbolIcon name="compass" size={12} color={Colors.gray} />
-            <Text selectable style={{ fontSize: 10, color: Colors.gray, fontWeight: "700", fontVariant: ["tabular-nums"] }}>
-              HEADING: {Math.round(session.heading)}°
-            </Text>
+            <View
+              style={{
+                transform: [{ rotate: `${session.heading}deg` }],
+                width: 32,
+                height: 32,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <SymbolIcon name="compass" size={28} color={Colors.primary} />
+            </View>
+            <View style={{ flexDirection: "column", gap: 1 }}>
+              <Text
+                selectable
+                style={{
+                  fontSize: 22,
+                  fontWeight: "900",
+                  color: Colors.white,
+                  letterSpacing: -0.5,
+                }}
+              >
+                {getDirectionInitials(session.heading)}
+              </Text>
+              <Text
+                selectable
+                style={{
+                  fontSize: 11,
+                  color: Colors.gray,
+                  fontWeight: "700",
+                  fontVariant: ["tabular-nums"],
+                  letterSpacing: 0.5,
+                }}
+              >
+                HEADING: {Math.round(session.heading)}°
+              </Text>
+            </View>
           </View>
         )}
       </Animated.View>

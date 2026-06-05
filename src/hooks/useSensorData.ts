@@ -107,7 +107,9 @@ export function useSensorData() {
       if (motionAvail) motionGranted = await getDeviceMotionPermissions();
       if (magAvail) magGranted = await getMagnetometerPermissions();
 
-      const allGranted = accGranted && gyroGranted && motionGranted && magGranted;
+      // Core sensors (accelerometer & gyroscope) must be physically available AND permissions granted
+      const coreAvailable = accAvail && gyroAvail;
+      const allGranted = coreAvailable && accGranted && gyroGranted && motionGranted && magGranted;
       setPermissionsGranted(allGranted);
       return allGranted;
     } catch (e) {
@@ -134,7 +136,9 @@ export function useSensorData() {
       if (motionAvail) motionGranted = await requestDeviceMotionPermissions();
       if (magAvail) magGranted = await requestMagnetometerPermissions();
 
-      const allGranted = accGranted && gyroGranted && motionGranted && magGranted;
+      // Core sensors (accelerometer & gyroscope) must be physically available AND permissions granted
+      const coreAvailable = accAvail && gyroAvail;
+      const allGranted = coreAvailable && accGranted && gyroGranted && motionGranted && magGranted;
       setPermissionsGranted(allGranted);
       return allGranted;
     } catch (error) {

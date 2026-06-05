@@ -181,6 +181,42 @@ export default function HomeScreen() {
     }
   };
 
+  const handleEnablePermissions = async () => {
+    try {
+      const granted = await requestPermissions();
+      if (granted) {
+        Alert.alert(
+          "Sensors Calibrated",
+          "High-frequency telemetry sensors are now successfully calibrated and active."
+        );
+      } else {
+        Alert.alert(
+          "Sensor Access Warning",
+          "Physical sensor permissions could not be fully calibrated or are unavailable (typical of emulators, simulators, and web browsers).\n\nWould you like to run in Simulated Drive mode to test the app features?",
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Launch Simulated Drive",
+              style: "default",
+              onPress: async () => {
+                const simSuccess = await startDrive(true);
+                if (simSuccess) {
+                  router.push("/active");
+                }
+              },
+            },
+          ]
+        );
+      }
+    } catch (error) {
+      console.warn("Failed to request permissions:", error);
+      Alert.alert(
+        "Sensor Permission Error",
+        "An unexpected error occurred while requesting sensor permissions. Please check your device settings."
+      );
+    }
+  };
+
   const formatDuration = (seconds: number): string => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -258,12 +294,12 @@ export default function HomeScreen() {
             <Text selectable style={{ color: Colors.gray, fontSize: 11, lineHeight: 15 }}>
               {permissionsGranted
                 ? "High-frequency telemetry logging is active and running."
-                : "Please enable physical sensors for real-time safety tracking."}
+                : "Physical sensors are uncalibrated or unavailable. Tap ENABLE to configure."}
             </Text>
           </View>
           {!permissionsGranted && (
             <ScaleButton
-              onPress={requestPermissions}
+              onPress={handleEnablePermissions}
               style={{
                 backgroundColor: Colors.info,
                 paddingHorizontal: 12,
