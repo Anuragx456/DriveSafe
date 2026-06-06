@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Text, View, ScrollView, Alert, Pressable, BackHandler } from "react-native";
+import { Text, View, ScrollView, Alert, Pressable, BackHandler, Platform } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
@@ -17,6 +17,31 @@ import ScoreGauge from "@/components/ScoreGauge";
 import EventCard from "@/components/EventCard";
 import SymbolIcon from "@/components/SymbolIcon";
 import { Colors, Radii, darkCardStyle } from "@/theme";
+
+let Host: any, HStack: any, VStack: any, SwiftText: any, SwiftImage: any;
+let foregroundColor: any, font: any, rotationEffect: any;
+let isSwiftUIAvailable = false;
+
+if (Platform.OS === "ios") {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const SwiftUI = require("@expo/ui/swift-ui");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Modifiers = require("@expo/ui/swift-ui/modifiers");
+    Host = SwiftUI.Host;
+    HStack = SwiftUI.HStack;
+    VStack = SwiftUI.VStack;
+    SwiftText = SwiftUI.Text;
+    SwiftImage = SwiftUI.Image;
+
+    foregroundColor = Modifiers.foregroundColor;
+    font = Modifiers.font;
+    rotationEffect = Modifiers.rotationEffect;
+    isSwiftUIAvailable = true;
+  } catch {
+    // Graceful fallback to standard React Native UI in environments lacking native ExpoUI module (e.g. Expo Go)
+  }
+}
 
 // Interactive Touch Scale Button
 interface ScaleButtonProps {
@@ -282,42 +307,77 @@ export default function ActiveDriveScreen() {
               }),
             }}
           >
-            <View
-              style={{
-                transform: [{ rotate: `${session.heading}deg` }],
-                width: 32,
-                height: 32,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <SymbolIcon name="compass" size={28} color={Colors.primary} />
-            </View>
-            <View style={{ flexDirection: "column", gap: 1 }}>
-              <Text
-                selectable
-                style={{
-                  fontSize: 22,
-                  fontWeight: "900",
-                  color: Colors.white,
-                  letterSpacing: -0.5,
-                }}
-              >
-                {getDirectionInitials(session.heading)}
-              </Text>
-              <Text
-                selectable
-                style={{
-                  fontSize: 11,
-                  color: Colors.gray,
-                  fontWeight: "700",
-                  fontVariant: ["tabular-nums"],
-                  letterSpacing: 0.5,
-                }}
-              >
-                HEADING: {Math.round(session.heading)}°
-              </Text>
-            </View>
+            {isSwiftUIAvailable ? (
+              <Host matchContents style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+                <HStack alignment="center" spacing={12}>
+                  <SwiftImage
+                    systemName="compass"
+                    modifiers={[
+                      foregroundColor(Colors.primary),
+                      font({ size: 28, weight: "bold" }),
+                      rotationEffect(session.heading),
+                    ]}
+                  />
+                  <VStack alignment="leading" spacing={1}>
+                    <SwiftText
+                      modifiers={[
+                        foregroundColor(Colors.white),
+                        font({ size: 22, weight: "black" }),
+                      ]}
+                    >
+                      {getDirectionInitials(session.heading)}
+                    </SwiftText>
+                    <SwiftText
+                      modifiers={[
+                        foregroundColor(Colors.gray),
+                        font({ size: 11, weight: "bold" }),
+                      ]}
+                    >
+                      HEADING: {Math.round(session.heading)}°
+                    </SwiftText>
+                  </VStack>
+                </HStack>
+              </Host>
+            ) : (
+              <>
+                <View
+                  style={{
+                    transform: [{ rotate: `${session.heading}deg` }],
+                    width: 32,
+                    height: 32,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <SymbolIcon name="compass" size={28} color={Colors.primary} />
+                </View>
+                <View style={{ flexDirection: "column", gap: 1 }}>
+                  <Text
+                    selectable
+                    style={{
+                      fontSize: 22,
+                      fontWeight: "900",
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    }}
+                  >
+                    {getDirectionInitials(session.heading)}
+                  </Text>
+                  <Text
+                    selectable
+                    style={{
+                      fontSize: 11,
+                      color: Colors.gray,
+                      fontWeight: "700",
+                      fontVariant: ["tabular-nums"],
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    HEADING: {Math.round(session.heading)}°
+                  </Text>
+                </View>
+              </>
+            )}
           </View>
         )}
       </Animated.View>

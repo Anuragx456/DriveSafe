@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
+  Platform,
 } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,6 +22,32 @@ import SafetyBadge from "@/components/SafetyBadge";
 import TrendChart from "@/components/TrendChart";
 import SymbolIcon from "@/components/SymbolIcon";
 import { Colors, Radii, darkCardStyle } from "@/theme";
+
+let Host: any, HStack: any, VStack: any, SwiftText: any, SwiftImage: any, RNHostView: any;
+let padding: any, foregroundColor: any, font: any;
+let isSwiftUIAvailable = false;
+
+if (Platform.OS === "ios") {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const SwiftUI = require("@expo/ui/swift-ui");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Modifiers = require("@expo/ui/swift-ui/modifiers");
+    Host = SwiftUI.Host;
+    HStack = SwiftUI.HStack;
+    VStack = SwiftUI.VStack;
+    SwiftText = SwiftUI.Text;
+    SwiftImage = SwiftUI.Image;
+    RNHostView = SwiftUI.RNHostView;
+
+    padding = Modifiers.padding;
+    foregroundColor = Modifiers.foregroundColor;
+    font = Modifiers.font;
+    isSwiftUIAvailable = true;
+  } catch {
+    // Graceful fallback to standard React Native UI in environments lacking native ExpoUI module (e.g. Expo Go)
+  }
+}
 
 // Premium Interactive Scaling Button Component
 interface ScaleButtonProps {
@@ -282,35 +309,88 @@ export default function HomeScreen() {
             }),
           }}
         >
-          <SymbolIcon
-            name={permissionsGranted ? "checkmark.circle.fill" : "exclamationmark.circle.fill"}
-            size={22}
-            color={permissionsGranted ? Colors.success : Colors.warning}
-          />
-          <View style={{ flex: 1, marginHorizontal: 10, gap: 2 }}>
-            <Text selectable style={{ color: Colors.white, fontSize: 14, fontWeight: "700" }}>
-              {permissionsGranted ? "Sensors Calibrated" : "Sensor Access Recommended"}
-            </Text>
-            <Text selectable style={{ color: Colors.gray, fontSize: 11, lineHeight: 15 }}>
-              {permissionsGranted
-                ? "High-frequency telemetry logging is active and running."
-                : "Physical sensors are uncalibrated or unavailable. Tap ENABLE to configure."}
-            </Text>
-          </View>
-          {!permissionsGranted && (
-            <ScaleButton
-              onPress={handleEnablePermissions}
-              style={{
-                backgroundColor: Colors.info,
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: Radii.sm,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text style={{ color: Colors.white, fontSize: 11, fontWeight: "800" }}>ENABLE</Text>
-            </ScaleButton>
+          {isSwiftUIAvailable ? (
+            <Host matchContents style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+              <HStack alignment="center" spacing={10}>
+                <SwiftImage
+                  systemName={permissionsGranted ? "checkmark.circle.fill" : "exclamationmark.circle.fill"}
+                  modifiers={[
+                    foregroundColor(permissionsGranted ? Colors.success : Colors.warning),
+                    font({ size: 22, weight: "bold" }),
+                  ]}
+                />
+                <VStack alignment="leading" spacing={2} modifiers={[padding({ horizontal: 10 })]}>
+                  <SwiftText
+                    modifiers={[
+                      foregroundColor(Colors.white),
+                      font({ size: 14, weight: "bold" }),
+                    ]}
+                  >
+                    {permissionsGranted ? "Sensors Calibrated" : "Sensor Access Recommended"}
+                  </SwiftText>
+                  <SwiftText
+                    modifiers={[
+                      foregroundColor(Colors.gray),
+                      font({ size: 11 }),
+                    ]}
+                  >
+                    {permissionsGranted
+                      ? "High-frequency telemetry logging is active and running."
+                      : "Physical sensors are uncalibrated or unavailable. Tap ENABLE to configure."}
+                  </SwiftText>
+                </VStack>
+                {!permissionsGranted && (
+                  <RNHostView matchContents>
+                    <ScaleButton
+                      onPress={handleEnablePermissions}
+                      style={{
+                        backgroundColor: Colors.info,
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                        borderRadius: Radii.sm,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Text style={{ color: Colors.white, fontSize: 11, fontWeight: "800" }}>ENABLE</Text>
+                    </ScaleButton>
+                  </RNHostView>
+                )}
+              </HStack>
+            </Host>
+          ) : (
+            <>
+              <SymbolIcon
+                name={permissionsGranted ? "checkmark.circle.fill" : "exclamationmark.circle.fill"}
+                size={22}
+                color={permissionsGranted ? Colors.success : Colors.warning}
+              />
+              <View style={{ flex: 1, marginHorizontal: 10, gap: 2 }}>
+                <Text selectable style={{ color: Colors.white, fontSize: 14, fontWeight: "700" }}>
+                  {permissionsGranted ? "Sensors Calibrated" : "Sensor Access Recommended"}
+                </Text>
+                <Text selectable style={{ color: Colors.gray, fontSize: 11, lineHeight: 15 }}>
+                  {permissionsGranted
+                    ? "High-frequency telemetry logging is active and running."
+                    : "Physical sensors are uncalibrated or unavailable. Tap ENABLE to configure."}
+                </Text>
+              </View>
+              {!permissionsGranted && (
+                <ScaleButton
+                  onPress={handleEnablePermissions}
+                  style={{
+                    backgroundColor: Colors.info,
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    borderRadius: Radii.sm,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text style={{ color: Colors.white, fontSize: 11, fontWeight: "800" }}>ENABLE</Text>
+                </ScaleButton>
+              )}
+            </>
           )}
         </View>
       </Animated.View>

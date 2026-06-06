@@ -7,11 +7,12 @@ DriveSafe is a premium React Native / Expo application designed to analyze drivi
 ## 📱 Tech Stack
 * **Framework**: React Native & Expo (v55)
 * **Routing**: Expo Router (File-based navigation)
-* **Styling**: Vanilla React Native StyleSheet with custom dark/neon premium theme system
+* **Styling**: Vanilla React Native StyleSheet, plus native iOS SwiftUI views via `@expo/ui/swift-ui`
 * **Animations**: React Native Reanimated (v4)
 * **State Management**: React Hooks (Reducer / Context pattern)
 * **Data Storage**: AsyncStorage (Persisted drive session history)
 * **Sensors**: Expo Sensors
+* **Native Bridges**: `@expo/ui` (Native UI Hosting)
 
 ---
 
